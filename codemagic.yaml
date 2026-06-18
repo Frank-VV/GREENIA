@@ -11,15 +11,23 @@ workflows:
         script: flutter pub get
       - name: Install pods
         script: |
-          find . -name "Podfile" -execdir pod install \;
+          cd ios && pod install
       - name: Build IPA sin firma
         script: |
           flutter build ios --release --no-codesign
-          APP_PATH="build/ios/Release-iphoneos/Runner.app"
-          PAYLOAD_DIR="build/ios/ipa/Payload"
-          mkdir -p "$PAYLOAD_DIR"
-          cp -r "$APP_PATH" "$PAYLOAD_DIR/"
-          cd build/ios/ipa
-          zip -r GREENIA.ipa Payload/
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -derivedDataPath ../build/ios/xcode \
+            -archivePath ../build/ios/Runner.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+          xcodebuild -exportArchive \
+            -archivePath ../build/ios/Runner.xcarchive \
+            -exportPath ../build/ios/ipa \
+            -exportOptionsPlist ExportOptions.plist
     artifacts:
-      - build/ios/ipa/GREENIA.ipa
+      - build/ios/ipa/*.ipa
