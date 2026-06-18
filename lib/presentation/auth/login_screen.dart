@@ -51,9 +51,8 @@ class _LoginScreenState extends State<LoginScreen>
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
+    // _AuthGate StreamBuilder handles navigation to home on auth state change
   }
 
   Future<void> _loginWithGoogle() async {
@@ -67,9 +66,8 @@ class _LoginScreenState extends State<LoginScreen>
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
+    // _AuthGate StreamBuilder handles navigation to home on auth state change
   }
 
   @override
@@ -137,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildForm(bool isLoading) {
+    final cs = Theme.of(context).colorScheme;
     return Form(
       key: _formKey,
       child: Column(
@@ -145,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen>
             controller: _emailCtrl,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            style: TextStyle(color: cs.onSurface),
             decoration: const InputDecoration(
               labelText: 'Correo electrónico',
               prefixIcon: Icon(Icons.email_rounded),
@@ -161,6 +161,7 @@ class _LoginScreenState extends State<LoginScreen>
             obscureText: _obscurePass,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => _login(),
+            style: TextStyle(color: cs.onSurface),
             decoration: InputDecoration(
               labelText: 'Contraseña',
               prefixIcon: const Icon(Icons.lock_rounded),
