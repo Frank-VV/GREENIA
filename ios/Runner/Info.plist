@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Flutter Application 1</string>
+	<string>GreenWatch</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>flutter_application_1</string>
+	<string>GreenWatch</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -24,8 +24,29 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.774137426536-d9i6srcre25thp4g8uceg8d381ai7rc3</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>GreenWatch necesita la cámara para fotografiar residuos y clasificarlos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>GreenWatch usa el micrófono al capturar imágenes con la cámara.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>GreenWatch accede a tu galería para seleccionar imágenes de residuos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>GreenWatch puede guardar imágenes de tus reportes en la galería.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>GreenWatch usa tu ubicación para registrar reportes en tu zona de San Jerónimo.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
