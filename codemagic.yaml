@@ -15,11 +15,9 @@ workflows:
       - name: Build IPA sin firma
         script: |
           flutter build ios --release --no-codesign
-          mkdir -p build/ios/ipa
           cd build/ios/Release-iphoneos
           mkdir -p Payload
-          cp -r Runner.app Payload/
-          zip -r ../ipa/GREENIA.ipa Payload
+          cp -r Runner.app Payload/Runner.app
+          zip -r GREENIA.ipa Payload
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/ios/Release-iphoneos/*.app
+      - build/ios/Release-iphoneos/GREENIA.ipa
