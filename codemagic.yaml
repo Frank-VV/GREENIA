@@ -6,6 +6,8 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      vars:
+        ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
     scripts:
       - name: Get packages
         script: flutter pub get
@@ -14,7 +16,7 @@ workflows:
           cd ios && pod install
       - name: Build IPA sin firma
         script: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign --dart-define=ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
           cd ios
           xcodebuild -workspace Runner.xcworkspace \
             -scheme Runner \

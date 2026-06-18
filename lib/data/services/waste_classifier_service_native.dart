@@ -1,6 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as img;
-import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class WasteResult {
   final String category;
@@ -23,88 +24,135 @@ class WasteClassifierService {
     'plastic',
     'trash',
   ];
-  static const int kInputSize = 380;
 
-  Interpreter? _interpreter;
+  static const String _apiKey = String.fromEnvironment(
+    'ANTHROPIC_API_KEY',
+    defaultValue: '',
+  );
+  static const String _model = 'claude-opus-4-8';
+  static const String _apiUrl = 'https://api.anthropic.com/v1/messages';
+
   bool _isInitialized = false;
-
   bool get isInitialized => _isInitialized;
 
   Future<void> initialize() async {
-    try {
-      final options = InterpreterOptions()..threads = 2;
-      _interpreter = await Interpreter.fromAsset(
-        'assets/waste_model.tflite',
-        options: options,
-      );
-      _isInitialized = true;
-      debugPrint('WasteClassifierService: modelo cargado correctamente');
-    } catch (e) {
-      _isInitialized = false;
-      debugPrint('WasteClassifierService: modelo no disponible, modo demo activo. Error: $e');
+    _isInitialized = _apiKey.isNotEmpty;
+    if (_isInitialized) {
+      debugPrint('WasteClassifierService: Claude Vision API lista');
+    } else {
+      debugPrint('WasteClassifierService: API key no configurada, modo demo activo');
     }
   }
 
   Future<WasteResult> classify(Uint8List imageBytes) async {
-    if (!_isInitialized || _interpreter == null) {
-      return _demoResult();
-    }
+    if (!_isInitialized) return _demoResult();
 
     try {
-      final input = await compute(_preprocessInIsolate, imageBytes);
-      if (input == null) return _demoResult();
+      final base64Image = base64Encode(imageBytes);
+      final mediaType = _detectMediaType(imageBytes);
 
-      final output = List.generate(1, (_) => List.filled(kLabels.length, 0.0));
-      _interpreter!.run(input, output);
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'x-api-key': _apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'max_tokens': 150,
+          'messages': [
+            {
+              'role': 'user',
+              'content': [
+                {
+                  'type': 'image',
+                  'source': {
+                    'type': 'base64',
+                    'media_type': mediaType,
+                    'data': base64Image,
+                  },
+                },
+                {
+                  'type': 'text',
+                  'text': _prompt,
+                },
+              ],
+            },
+          ],
+        }),
+      );
 
-      final probabilities = output[0];
-      int maxIdx = 0;
-      double maxVal = probabilities[0];
-      for (int i = 1; i < probabilities.length; i++) {
-        if (probabilities[i] > maxVal) {
-          maxVal = probabilities[i];
-          maxIdx = i;
-        }
+      if (response.statusCode != 200) {
+        debugPrint('WasteClassifierService: HTTP ${response.statusCode}: ${response.body}');
+        return _demoResult();
       }
 
-      return WasteResult(
-        category: kLabels[maxIdx],
-        confidence: maxVal,
-        isDemo: false,
-      );
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final content = data['content'] as List<dynamic>;
+      if (content.isEmpty) return _demoResult();
+
+      final text = (content[0] as Map<String, dynamic>)['text'] as String;
+      return _parseResponse(text);
     } catch (e) {
       debugPrint('WasteClassifierService.classify error: $e');
       return _demoResult();
     }
   }
 
-  static List<List<List<List<double>>>>? _preprocessInIsolate(Uint8List bytes) {
+  static const String _prompt =
+      'Eres un experto en clasificación de residuos sólidos para reciclaje. '
+      'Analiza detalladamente esta imagen e identifica el material principal del objeto mostrado.\n\n'
+      'Clasifica el residuo en EXACTAMENTE UNA de estas categorías:\n'
+      '- cardboard: cajas de cartón, empaques de cartón, cartones de cereal, cartones de huevo\n'
+      '- glass: botellas de vidrio, frascos de vidrio, recipientes de vidrio\n'
+      '- metal: latas de aluminio, latas de hojalata, tapas metálicas, papel aluminio\n'
+      '- paper: periódicos, revistas, papel de oficina, bolsas de papel, papel impreso\n'
+      '- plastic: botellas plásticas, bolsas plásticas, envases plásticos, tecnopor/poliestireno\n'
+      '- trash: residuos orgánicos, pañales, materiales mixtos no reciclables\n\n'
+      'Responde ÚNICAMENTE con un objeto JSON (sin texto adicional):\n'
+      '{"category": "<categoría>", "confidence": <0.0 a 1.0>}\n\n'
+      'Donde confidence indica tu certeza: 0.9+ muy seguro, 0.7–0.9 seguro, 0.5–0.7 moderado.';
+
+  String _detectMediaType(Uint8List bytes) {
+    if (bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8) {
+      return 'image/jpeg';
+    }
+    if (bytes.length >= 4 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4E &&
+        bytes[3] == 0x47) {
+      return 'image/png';
+    }
+    return 'image/jpeg';
+  }
+
+  WasteResult _parseResponse(String text) {
     try {
-      final decoded = img.decodeImage(bytes);
-      if (decoded == null) return null;
+      final jsonMatch = RegExp(r'\{[^{}]+\}').firstMatch(text.trim());
+      if (jsonMatch == null) {
+        debugPrint('WasteClassifierService: JSON no encontrado en: $text');
+        return _demoResult();
+      }
 
-      final resized = img.copyResize(
-        decoded,
-        width: kInputSize,
-        height: kInputSize,
-        interpolation: img.Interpolation.linear,
-      );
+      final parsed = jsonDecode(jsonMatch.group(0)!) as Map<String, dynamic>;
+      final category = parsed['category'] as String?;
+      final confidence = (parsed['confidence'] as num?)?.toDouble() ?? 0.5;
 
-      return List.generate(
-        1,
-        (_) => List.generate(
-          kInputSize,
-          (y) => List.generate(
-            kInputSize,
-            (x) {
-              final pixel = resized.getPixel(x, y);
-              return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
-            },
-          ),
-        ),
+      if (category == null || !kLabels.contains(category)) {
+        debugPrint('WasteClassifierService: categoría inválida: $category');
+        return _demoResult();
+      }
+
+      return WasteResult(
+        category: category,
+        confidence: confidence.clamp(0.0, 1.0),
+        isDemo: false,
       );
     } catch (e) {
-      return null;
+      debugPrint('WasteClassifierService._parseResponse error: $e');
+      return _demoResult();
     }
   }
 
@@ -117,8 +165,6 @@ class WasteClassifierService {
   }
 
   void dispose() {
-    _interpreter?.close();
-    _interpreter = null;
     _isInitialized = false;
   }
 }
