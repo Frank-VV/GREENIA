@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "774137426536",
+    "project_id": "greenwatch12",
+    "storage_bucket": "greenwatch12.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774137426536:android:89571d1008ed14ea6d01dd",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "774137426536-3ntbhorcs983nedmqftfo7umqunivgog.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa9egU52nN7Ge3W5-PLhUJ76H_ea9xxXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "774137426536-3ntbhorcs983nedmqftfo7umqunivgog.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774137426536:android:1c5f97b7b9e2f9ba6d01dd",
+        "android_client_info": {
+          "package_name": "com.example.greenwatch12"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "774137426536-3ntbhorcs983nedmqftfo7umqunivgog.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa9egU52nN7Ge3W5-PLhUJ76H_ea9xxXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "774137426536-3ntbhorcs983nedmqftfo7umqunivgog.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
