@@ -27,9 +27,10 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
-          xcodebuild -exportArchive \
-            -archivePath ../build/ios/Runner.xcarchive \
-            -exportPath ../build/ios/ipa \
-            -exportOptionsPlist ExportOptions.plist
+          mkdir -p ../build/ios/ipa/Payload
+          cp -r "../build/ios/Runner.xcarchive/Products/Applications/Runner.app" \
+            "../build/ios/ipa/Payload/Runner.app"
+          cd ../build/ios/ipa
+          zip -r GREENIA.ipa Payload/
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/ipa/GREENIA.ipa
