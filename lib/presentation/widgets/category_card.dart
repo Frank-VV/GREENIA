@@ -7,8 +7,17 @@ class CategoryCard extends StatelessWidget {
 
   const CategoryCard({super.key, required this.category, this.onTap});
 
+  // Choose text color based on background luminance for accessibility
+  Color _onColor(Color bg) {
+    final luminance = bg.computeLuminance();
+    return luminance > 0.35 ? Colors.black87 : Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final textColor = _onColor(category.color);
+    final overlayColor = textColor.withValues(alpha: 0.15);
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -19,7 +28,7 @@ class CategoryCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                category.color.withValues(alpha: 0.85),
+                category.color.withValues(alpha: 0.82),
                 category.color,
               ],
             ),
@@ -34,23 +43,23 @@ class CategoryCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: overlayColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(category.icon, color: Colors.white, size: 28),
+                    child: Icon(category.icon, color: textColor, size: 28),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: overlayColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       category.bagColor.replaceAll('Bolsa ', ''),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -59,19 +68,19 @@ class CategoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 category.name,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: textColor,
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 category.type,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: textColor.withValues(alpha: 0.75),
                   fontSize: 12,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

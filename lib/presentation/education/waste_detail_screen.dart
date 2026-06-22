@@ -24,8 +24,14 @@ class _WasteDetailView extends StatelessWidget {
 
   const _WasteDetailView({required this.category});
 
+  Color get _onCatColor {
+    final luminance = category.color.computeLuminance();
+    return luminance > 0.35 ? Colors.black87 : Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final onColor = _onCatColor;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -33,7 +39,7 @@ class _WasteDetailView extends StatelessWidget {
             pinned: true,
             expandedHeight: 200,
             backgroundColor: category.color,
-            foregroundColor: Colors.white,
+            foregroundColor: onColor,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -54,16 +60,16 @@ class _WasteDetailView extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: onColor.withValues(alpha: 0.18),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(category.icon, color: Colors.white, size: 48),
+                        child: Icon(category.icon, color: onColor, size: 48),
                       ),
                       const SizedBox(height: 12),
                       Text(
                         category.name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: onColor,
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
                         ),

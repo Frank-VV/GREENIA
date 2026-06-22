@@ -4,7 +4,6 @@ import '../../data/models/report_model.dart';
 import '../../data/repositories/report_repository.dart';
 import '../widgets/report_card.dart';
 import '../widgets/loading_widget.dart' as gw;
-import '../widgets/greenwatch_app_bar.dart';
 import '../../app/routes.dart';
 
 class CommunityScreen extends StatelessWidget {
@@ -13,42 +12,70 @@ class CommunityScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: GreenWatchAppBar(
-          title: 'Comunidad',
-          showLogo: true,
-          bottom: TabBar(
-            labelColor: cs.onPrimary,
-            unselectedLabelColor: cs.onPrimary.withValues(alpha: 0.7),
-            indicatorColor: cs.onPrimary,
-            tabs: const [
-              Tab(text: 'Pendientes'),
-              Tab(text: 'En revisión / Atendidos'),
-            ],
+    return Scaffold(
+      backgroundColor: cs.surfaceContainerLowest,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 110,
+            backgroundColor: cs.primary,
+            foregroundColor: cs.onPrimary,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              title: Row(
+                children: [
+                  Icon(Icons.eco_rounded, color: cs.onPrimary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Reportes Comunidad',
+                    style: TextStyle(
+                      color: cs.onPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [cs.primary, cs.secondary],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 48, 16, 0),
+                  child: Text(
+                    'Comparte problemas ambientales\nen San Jerónimo',
+                    style: TextStyle(
+                      color: cs.onPrimary.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: [
-            _ReportList(stream: context.read<ReportRepository>().pendingReports()),
-            _ReportList(stream: context.read<ReportRepository>().reviewedReports()),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.createReport),
-          icon: const Icon(Icons.add_circle_outline_rounded),
-          label: const Text('Nuevo reporte'),
-        ),
+          _ReportFeed(stream: context.read<ReportRepository>().allReports()),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, AppRoutes.createReport),
+        icon: const Icon(Icons.add_circle_outline_rounded),
+        label: const Text('Nuevo reporte'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
     );
   }
 }
 
-class _ReportList extends StatelessWidget {
+class _ReportFeed extends StatelessWidget {
   final Stream<List<ReportModel>> stream;
 
-  const _ReportList({required this.stream});
+  const _ReportFeed({required this.stream});
 
   @override
   Widget build(BuildContext context) {
@@ -56,25 +83,45 @@ class _ReportList extends StatelessWidget {
       stream: stream,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const gw.LoadingShimmerList();
+          return const SliverFillRemaining(
+            child: gw.LoadingShimmerList(),
+          );
         }
         if (snap.hasError) {
-          return gw.ErrorWidget(
-            message: 'Error al cargar los reportes',
-            onRetry: () {},
+          return SliverFillRemaining(
+            child: gw.ErrorWidget(
+              message: 'Error al cargar los reportes',
+              onRetry: () {},
+            ),
           );
         }
         final reports = snap.data ?? [];
         if (reports.isEmpty) {
-          return const gw.EmptyWidget(
-            message: 'No hay reportes en esta sección',
-            icon: Icons.inbox_rounded,
+          return const SliverFillRemaining(
+            child: gw.EmptyWidget(
+              message: 'Aún no hay reportes.\n¡Sé el primero en reportar!',
+              icon: Icons.campaign_rounded,
+            ),
           );
         }
-        return ListView.builder(
-          padding: const EdgeInsets.only(top: 8, bottom: 80),
-          itemCount: reports.length,
-          itemBuilder: (_, i) => ReportCard(report: reports[i]),
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (_, i) {
+              if (i == 0) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  child: Text(
+                    '${reports.length} reporte${reports.length != 1 ? 's' : ''} publicado${reports.length != 1 ? 's' : ''}',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                  ),
+                );
+              }
+              return ReportCard(report: reports[i - 1]);
+            },
+            childCount: reports.length + 1,
+          ),
         );
       },
     );

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -101,18 +100,36 @@ class WasteClassifierService {
   }
 
   static const String _prompt =
-      'Eres un experto en clasificación de residuos sólidos para reciclaje. '
-      'Analiza detalladamente esta imagen e identifica el material principal del objeto mostrado.\n\n'
-      'Clasifica el residuo en EXACTAMENTE UNA de estas categorías:\n'
-      '- cardboard: cajas de cartón, empaques de cartón, cartones de cereal, cartones de huevo\n'
-      '- glass: botellas de vidrio, frascos de vidrio, recipientes de vidrio\n'
-      '- metal: latas de aluminio, latas de hojalata, tapas metálicas, papel aluminio\n'
-      '- paper: periódicos, revistas, papel de oficina, bolsas de papel, papel impreso\n'
-      '- plastic: botellas plásticas, bolsas plásticas, envases plásticos, tecnopor/poliestireno\n'
-      '- trash: residuos orgánicos, pañales, materiales mixtos no reciclables\n\n'
-      'Responde ÚNICAMENTE con un objeto JSON (sin texto adicional):\n'
-      '{"category": "<categoría>", "confidence": <0.0 a 1.0>}\n\n'
-      'Donde confidence indica tu certeza: 0.9+ muy seguro, 0.7–0.9 seguro, 0.5–0.7 moderado.';
+      'Eres un sistema experto de visión artificial especializado en clasificación precisa de residuos sólidos. '
+      'Analiza esta imagen con máximo detalle para identificar el material principal.\n\n'
+      'PROCESO OBLIGATORIO DE ANÁLISIS:\n'
+      'Paso 1: Identifica EXACTAMENTE qué objeto o material aparece en la imagen.\n'
+      'Paso 2: Determina de qué material está compuesto (orgánico, plástico, papel, vidrio, metal, cartón).\n'
+      'Paso 3: Asigna la categoría correcta basándote SOLO en el material, no en el color.\n\n'
+      'REGLAS CRÍTICAS DE CLASIFICACIÓN:\n\n'
+      '• "trash" → TODOS los residuos orgánicos/biológicos/no reciclables:\n'
+      '  - Frutas y cáscaras: cáscara de plátano/banana, cáscara de naranja/limón/mango, restos de manzana\n'
+      '  - Verduras: hojas, tallos, restos de cocina\n'
+      '  - Restos de comida preparada, huesos, semillas\n'
+      '  - Pañales, papel higiénico usado, servilletas usadas\n'
+      '  - Cerámica rota, ropa vieja\n'
+      '  REGLA: Si el objeto es de origen vegetal/animal/comida → SIEMPRE "trash" sin excepción\n\n'
+      '• "plastic" → Solo materiales sintéticos de polímero artificial:\n'
+      '  - Botellas PET, bolsas plásticas de polietileno, envases de yogur/margarina\n'
+      '  - Tapas de plástico, sorbetes, envoltorios de caramelo\n'
+      '  - Tecnopor/poliestireno expandido\n'
+      '  REGLA: Solo es plástico si es claramente artificial/sintético, nunca si es orgánico\n\n'
+      '• "cardboard" → Cartón y papel grueso:\n'
+      '  - Cajas de cartón, empaques corrugados, cartones de cereal, cartones de huevo\n\n'
+      '• "glass" → Vidrio transparente o de color:\n'
+      '  - Botellas de vidrio, frascos de mermelada/salsa, vasos de vidrio\n\n'
+      '• "metal" → Materiales metálicos:\n'
+      '  - Latas de aluminio (bebidas), latas de hojalata (atún, frijoles), papel aluminio\n\n'
+      '• "paper" → Papel delgado:\n'
+      '  - Periódicos, revistas, papel de oficina, bolsas de papel kraft\n\n'
+      'Asigna confianza 0.97+ cuando el objeto es claramente identificable.\n'
+      'Responde ÚNICAMENTE con JSON válido sin texto adicional:\n'
+      '{"category": "<categoría>", "confidence": <número 0.0-1.0>}';
 
   String _detectMediaType(Uint8List bytes) {
     if (bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8) {

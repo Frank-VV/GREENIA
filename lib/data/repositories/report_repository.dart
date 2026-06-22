@@ -13,6 +13,7 @@ class ReportRepository {
 
   Stream<List<ReportModel>> pendingReports() => _firestore.pendingReportsStream();
   Stream<List<ReportModel>> reviewedReports() => _firestore.reviewedReportsStream();
+  Stream<List<ReportModel>> allReports() => _firestore.allReportsStream();
   Stream<List<ReportModel>> userReports(String uid) => _firestore.userReportsStream(uid);
 
   Future<String?> createReport({

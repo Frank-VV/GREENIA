@@ -51,8 +51,10 @@ class _LoginScreenState extends State<LoginScreen>
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
+      return;
     }
-    // _AuthGate StreamBuilder handles navigation to home on auth state change
+    // Explicit navigation for iOS compatibility — auth state stream may delay
+    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
   }
 
   Future<void> _loginWithGoogle() async {
@@ -66,8 +68,10 @@ class _LoginScreenState extends State<LoginScreen>
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
+      return;
     }
-    // _AuthGate StreamBuilder handles navigation to home on auth state change
+    // Explicit navigation for iOS compatibility
+    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
   }
 
   @override

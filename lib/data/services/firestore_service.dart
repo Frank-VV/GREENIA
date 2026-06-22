@@ -93,6 +93,14 @@ class FirestoreService {
             snap.docs.map(ReportModel.fromFirestore).toList());
   }
 
+  Stream<List<ReportModel>> allReportsStream() {
+    return _db
+        .collection(AppConstants.collectionReports)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map(ReportModel.fromFirestore).toList());
+  }
+
   Stream<List<ReportModel>> userReportsStream(String uid) {
     return _db
         .collection(AppConstants.collectionReports)
