@@ -209,7 +209,8 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Widget _buildIdleOverlay() {
-    const frameSize = 240.0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final frameSize = (screenWidth * 0.78).clamp(240.0, 360.0);
     return Stack(
       children: [
         ColorFiltered(
@@ -240,7 +241,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             child: Stack(
               children: [
                 CustomPaint(
-                  size: const Size(frameSize, frameSize),
+                  size: Size(frameSize, frameSize),
                   painter: _CornerPainter(),
                 ),
                 AnimatedBuilder(
@@ -278,9 +279,18 @@ class _ScannerScreenState extends State<ScannerScreen>
               const Icon(Icons.photo_camera_rounded, color: Colors.white54, size: 20),
               const SizedBox(height: 8),
               Text(
-                'Apunta la cámara al residuo',
+                'Centra el residuo en el marco',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Acércate hasta que el residuo llene el cuadro',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.white60,
+                      fontSize: 13,
+                    ),
               ),
             ],
           ),

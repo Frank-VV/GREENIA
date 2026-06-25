@@ -55,7 +55,7 @@ class _EducationScreenState extends State<EducationScreen> {
       slivers: [
         SliverAppBar(
           pinned: true,
-          expandedHeight: 180,
+          expandedHeight: 240,
           backgroundColor: cs.primary,
           foregroundColor: cs.onPrimary,
           automaticallyImplyLeading: false,
@@ -83,7 +83,7 @@ class _EducationScreenState extends State<EducationScreen> {
               ),
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
+                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 80),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -117,13 +117,14 @@ class _EducationScreenState extends State<EducationScreen> {
                 style: TextStyle(color: cs.onSurface),
                 decoration: InputDecoration(
                   hintText: 'Buscar categoría...',
-                  prefixIcon: const Icon(Icons.search_rounded),
+                  prefixIcon: Icon(Icons.search_rounded, color: cs.onSurface.withValues(alpha: 0.6)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surface,
+                  fillColor: cs.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
+                  hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.5)),
                   contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 ),
               ),

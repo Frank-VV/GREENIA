@@ -75,8 +75,8 @@ class _ScheduleScreenState extends State<ScheduleScreen>
       polylineId: PolylineId(route.id),
       points: route.routePoints,
       color: color,
-      width: 5,
-      patterns: const [],
+      width: 6,
+      patterns: [PatternItem.dash(24), PatternItem.gap(12)],
     ));
 
     // Add a marker at the center of the route
